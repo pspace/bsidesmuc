@@ -1,47 +1,62 @@
 #!/bin/sh
-CWD=`pwd`
+DOCSTRING="Usage: ./setup-frida-android.sh -a TARGET_ARCHITECTURE [-b DIR_WITH_DOWNLOADED_BINARIES] [-n BINARY_NAME_ON_TARGET]"
+NAME='frida-server'
 
-# create directory for binary content
-mkdir -p frida-libs
-cd frida-libs
+ARCH='invalid'
+BINDIR='frida-libs'
 
-# Get the latest version number
-tmpfile=tmp.json
-curl -s -X GET https://api.github.com/repos/frida/frida/tags -o $tmpfile
-LATEST_RELEASE=`cat $tmpfile |grep name | head -1 |  sed 's/\"//g' |  sed 's/\,//g'|  gawk '{split($0,array,": ")} END{print array[2]}'`
-rm $tmpfile
-
-# Store it for the deplyment script to find the correct version
-echo Updating frida to $LATEST_RELEASE
-echo $LATEST_RELEASE > "LATEST_RELEASE"
-
-# This depends on your preferences and how your distro/operating system names the pip binary
-# Windows users will have to adjust this (if you use Pycharm you should be able to install Frida via Pycharms built-in package manager). 
-sudo pip3 install frida --upgrade
-# sudo pip2 install frida --upgrade
-
-# we are inside frida-libs - clean up older versions
-rm -f frida*
-
-# download x86/x86_64/arm/arm64 server and gadget files - just add other architectures here
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-gadget-$LATEST_RELEASE-android-x86_64.so.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-gadget-$LATEST_RELEASE-android-x86.so.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-gadget-$LATEST_RELEASE-android-arm64.so.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-gadget-$LATEST_RELEASE-android-arm.so.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-server-$LATEST_RELEASE-android-x86_64.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-server-$LATEST_RELEASE-android-x86.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-server-$LATEST_RELEASE-android-arm64.xz
-curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-server-$LATEST_RELEASE-android-arm.xz
-# curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-gadget-$LATEST_RELEASE-linux-x86_64.so.xz
-# curl -L -O -J https://github.com/frida/frida/releases/download/$LATEST_RELEASE/frida-server-$LATEST_RELEASE-linux-x86_64.xz
-
-
-# unpack the downloaded archives
-for f in *.xz
+while [ "$1" != "" ];
 do
-  7z x "$f"
+case $1 in
+    -a |--arch )
+    shift
+    ARCH=$1
+    ;;
+    -b |--bindir )
+    shift
+    BINDIR=$1
+    ;;
+    -n|--name)
+    shift
+    NAME=$1
+    ;;
+    -h|--help)
+    echo $DOCSTRING
+    exit
+    ;;
+    *)
+    echo $1
+    echo $DOCSTRING
+    exit
+    ;;
+esac
+shift
 done
-rm *.xz
 
-# go back to where we started
-cd "$CWD"
+if [[ "$ARCH" = "invalid" ]]; then
+    echo "No target architecture specified! $ARCH"
+    echo $DOCSTRING
+    exit -1
+fi
+
+if [[ -z "$NAME" ]]; then
+  NAME='frida'
+fi
+
+VERSION=`cat $BINDIR/LATEST_RELEASE`
+
+# Switch adb to root - this is required for the server binary to access other processes' memory
+echo "Executing: adb root"
+adb root
+
+echo "Executing: adb push $BINDIR/frida-server-$VERSION-android-$ARCH /data/local/tmp/$NAME"
+adb push $BINDIR/frida-server-$VERSION-android-$ARCH /data/local/tmp/$NAME
+
+echo Executing: adb shell "chmod 755 /data/local/tmp/$NAME"
+adb shell "chmod 755 /data/local/tmp/$NAME"
+
+echo Executing: adb shell "/data/local/tmp/$NAME &"
+adb shell "/data/local/tmp/$NAME" &
+
+# check if everything worked
+frida-ps -U
