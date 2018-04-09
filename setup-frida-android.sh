@@ -1,5 +1,4 @@
 #!/bin/sh
-# Copy and save as e.g. update-frida.sh - or get it from https://github.com/pspace/bsidesmuc
 CWD=`pwd`
 
 # create directory for binary content
