@@ -1,0 +1,5 @@
+Experiment with frida-trace on Firefox.  Try to intercept calls to a function e.g. PR_Read. 
+
+Hint: in Firefox you can modify resend requests. Try to remove compression for the request to get human readable results.
+
+Frida's Javascript API: https://www.frida.re/docs/javascript-api/

@@ -1,0 +1,4 @@
+Use the "needleREmover" app, and try to intercept and modify the text set in the TextActivity.
+
+Sources are in /home/frida/tasks/needleRemover/src/space/polylog/owasp/needleremover/TextActivity.java
+For an example how sending/receiving works check: /home/frida/tasks/enumeration/*

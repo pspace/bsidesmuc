@@ -1,0 +1,2 @@
+When you are able to circumvent certificate pinning and validation you can use a proxy to modify requests.
+Use the script from Task 3 and the 'mitmproxy' with with the examples in this directory to intercept traffic for the WebView browser of the emulator

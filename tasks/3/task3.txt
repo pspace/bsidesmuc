@@ -1,0 +1,4 @@
+Install 'pinning.apk' on the emulator. You have to install the old/unpinned version of the app first.
+Start the needleRemover app and try to see. 
+
+Hint: You can use 'pidcat', or 'adb logcat' to figure out what you have to intercept.
