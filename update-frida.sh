@@ -17,8 +17,9 @@ echo $LATEST_RELEASE > "LATEST_RELEASE"
 
 # This depends on your preferences and how your distro/operating system names the pip binary
 # Windows users will have to adjust this (if you use Pycharm you should be able to install Frida via Pycharms built-in package manager). 
-sudo pip3 install frida --upgrade
-# sudo pip2 install frida --upgrade
+sudo pip3 install frida-tools --upgrade
+sudo pip2 install frida-tools --upgrade
+
 
 # we are inside frida-libs - clean up older versions
 rm -f frida*

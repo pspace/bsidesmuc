@@ -53,7 +53,7 @@ echo "Executing: adb push $BINDIR/frida-server-$VERSION-android-$ARCH /data/loca
 adb push $BINDIR/frida-server-$VERSION-android-$ARCH /data/local/tmp/$NAME
 
 echo Executing: adb shell "chmod 755 /data/local/tmp/$NAME"
-adb shell "chmod 755 /data/local/tmp/$NAME"
+adb shell "su 0 chmod 755 /data/local/tmp/$NAME"
 
 echo Executing: adb shell "/data/local/tmp/$NAME &"
 adb shell "/data/local/tmp/$NAME" &
